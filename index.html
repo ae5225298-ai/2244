@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأسس العلمية للشراء — المحاضرة السادسة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#020612;
+  --card-bg:rgba(13, 20, 36, 0.82);
+  --card-border:rgba(56, 189, 248, 0.25);
+  --text-main:#f8fafc;
+  --text-sub:#cbd5e1;
+  --cyan:#38bdf8;
+  --purple:#a855f7;
+  --emerald:#34d399;
+  --amber:#fbbf24;
+  --rose:#f43f5e;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html, body{width:100%;height:100%;overflow:hidden;background:var(--bg-deep);color:var(--text-main);font-family:'Cairo',sans-serif;user-select:none;}
+
+/* خلفية سماء الغيوم والبرق السينمائية */
+#storm-sky-canvas{position:fixed;inset:0;z-index:1;pointer-events:none;}
+
+/* الهيدر العلوي */
+header{
+  position:fixed;top:0;right:0;left:0;height:65px;
+  background:rgba(2, 6, 18, 0.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  display:flex;justify-content:space-between;align-items:center;padding:0 3vw;z-index:100;
+}
+.brand{font-weight:900;font-size:1.05rem;display:flex;align-items:center;gap:10px;letter-spacing:0.5px;}
+.brand span.dot{color:var(--cyan);}
+.badge{background:rgba(56,189,248,0.12);color:var(--cyan);padding:4px 14px;border-radius:20px;font-size:0.8rem;font-weight:700;border:1px solid rgba(56,189,248,0.3);}
+.slide-indicator{font-weight:700;color:var(--text-sub);font-size:0.92rem;}
+.slide-indicator span{color:var(--cyan);font-weight:900;font-size:1.1rem;}
+
+/* حاوية العرض الأفقي كامل الشاشة */
+.presentation-viewport{
+  position:relative;width:100vw;height:100vh;z-index:10;
+  perspective:1200px;overflow:hidden;
+}
+
+/* الشريحة الأساسية */
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:80px 6vw 70px;
+  opacity:0;pointer-events:none;
+  transition:transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.75s ease, filter 0.75s ease;
+  will-change:transform, opacity, filter;
+}
+
+.slide.active{
+  opacity:1;pointer-events:auto;
+  transform:translate3d(0, 0, 0) rotateY(0deg) rotateX(0deg) scale(1) !important;
+  filter:blur(0px) !important;
+  z-index:20;
+}
+
+/* أنماط الانتقالات المختلفة والمتميزة */
+.slide[data-transition="zoom"]{transform:scale(0.6) translateZ(-400px);filter:blur(12px);}
+.slide[data-transition="zoom"].exit-prev{transform:scale(1.4) translateZ(200px);opacity:0;filter:blur(10px);}
+
+.slide[data-transition="cube"]{transform:rotateY(-90deg) translateZ(500px);filter:blur(8px);}
+.slide[data-transition="cube"].exit-prev{transform:rotateY(90deg) translateZ(500px);opacity:0;filter:blur(8px);}
+
+.slide[data-transition="slide-right"]{transform:translateX(100vw) rotate(5deg);filter:blur(10px);}
+.slide[data-transition="slide-right"].exit-prev{transform:translateX(-100vw) rotate(-5deg);opacity:0;filter:blur(10px);}
+
+.slide[data-transition="flip-x"]{transform:rotateX(-80deg) translateY(200px);filter:blur(6px);}
+.slide[data-transition="flip-x"].exit-prev{transform:rotateX(80deg) translateY(-200px);opacity:0;filter:blur(6px);}
+
+.slide[data-transition="glitch"]{transform:scale(1.2) translateX(-50vw);filter:blur(15px);}
+.slide[data-transition="glitch"].exit-prev{transform:scale(0.8) translateX(50vw);opacity:0;filter:blur(15px);}
+
+.slide[data-transition="drop"]{transform:translateY(-100vh) scale(0.9);filter:blur(20px);}
+.slide[data-transition="drop"].exit-prev{transform:translateY(100vh) scale(0.9);opacity:0;filter:blur(20px);}
+
+.slide[data-transition="spin"]{transform:rotate(-180deg) scale(0.2);filter:blur(12px);}
+.slide[data-transition="spin"].exit-prev{transform:rotate(180deg) scale(1.5);opacity:0;filter:blur(12px);}
+
+.slide[data-transition="slide-left"]{transform:translateX(-100vw) scale(0.85);filter:blur(10px);}
+.slide[data-transition="slide-left"].exit-prev{transform:translateX(100vw) scale(0.85);opacity:0;filter:blur(10px);}
+
+.slide[data-transition="tunnel"]{transform:translateZ(-1000px) rotateX(45deg);filter:blur(16px);}
+.slide[data-transition="tunnel"].exit-prev{transform:translateZ(800px) rotateX(-45deg);opacity:0;filter:blur(16px);}
+
+.slide[data-transition="ripple"]{transform:scale(0.5) translateY(50vh);filter:blur(10px);}
+.slide[data-transition="ripple"].exit-prev{transform:scale(1.3) translateY(-50vh);opacity:0;filter:blur(10px);}
+
+.slide[data-transition="matrix"]{transform:translateX(80vw) translateY(-40vh) rotate(-15deg);filter:blur(12px);}
+.slide[data-transition="matrix"].exit-prev{transform:translateX(-80vw) translateY(40vh) rotate(15deg);opacity:0;filter:blur(12px);}
+
+.slide[data-transition="fold"]{transform:rotateY(60deg) rotateX(-30deg) translateZ(-300px);filter:blur(10px);}
+.slide[data-transition="fold"].exit-prev{transform:rotateY(-60deg) rotateX(30deg) translateZ(300px);opacity:0;filter:blur(10px);}
+
+.slide[data-transition="fade-zoom"]{transform:scale(0.8);filter:blur(8px);}
+.slide[data-transition="fade-zoom"].exit-prev{transform:scale(1.1);opacity:0;filter:blur(8px);}
+
+.slide[data-transition="expand"]{transform:scale(0.1) rotate(20deg);filter:blur(20px);}
+.slide[data-transition="expand"].exit-prev{transform:scale(2) rotate(-20deg);opacity:0;filter:blur(20px);}
+
+
+/* كروت الزجاج النيون الفاخرة الملونة */
+.cyber-card{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-top:2px solid var(--accent-color, var(--cyan));
+  border-right:4px solid var(--accent-color, var(--cyan));
+  border-radius:20px;padding:26px 30px;
+  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+  box-shadow:0 20px 45px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.12);
+  position:relative;overflow:hidden;
+  transition:all 0.35s ease;
+  width:100%;
+}
+.cyber-card:hover{
+  border-color:var(--accent-color, var(--cyan));
+  box-shadow:0 25px 55px rgba(0,0,0,0.85), 0 0 30px rgba(56,189,248,0.22);
+  transform:translateY(-3px);
+}
+
+.grid-layout{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;width:100%;max-width:1150px;margin-top:16px;}
+.col-12{grid-column:span 12;}
+.col-6{grid-column:span 6;}
+.col-4{grid-column:span 4;}
+.col-3{grid-column:span 3;}
+
+@media(max-width:900px){
+  .col-6,.col-4,.col-3{grid-column:span 12;}
+  .slide{padding:75px 4vw 80px;}
+}
+
+.cyber-tag{
+  display:inline-flex;align-items:center;gap:8px;font-size:0.82rem;font-weight:800;
+  color:var(--accent-color, var(--cyan));background:rgba(56,189,248,0.12);
+  padding:5px 14px;border-radius:8px;border:1px solid rgba(56,189,248,0.3);
+  margin-bottom:12px;letter-spacing:0.5px;width:fit-content;
+}
+
+h1{font-size:clamp(2rem,4vw,3.3rem);font-weight:900;line-height:1.2;margin-bottom:12px;}
+h2{font-size:clamp(1.35rem,2.5vw,2.2rem);font-weight:800;line-height:1.3;margin-bottom:12px;color:var(--text-main);}
+h3{font-size:1.18rem;font-weight:800;margin-bottom:6px;color:var(--text-main);}
+p, li{color:var(--text-sub);font-size:1rem;line-height:1.8;font-weight:500;}
+b{color:#ffffff;font-weight:700;}
+
+/* العناوين الملونة والمتدرجة */
+.title-gradient-cyan{background:linear-gradient(135deg, #ffffff 20%, #38bdf8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.title-gradient-amber{background:linear-gradient(135deg, #ffffff 20%, #fbbf24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.title-gradient-purple{background:linear-gradient(135deg, #ffffff 20%, #c084fc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.title-gradient-emerald{background:linear-gradient(135deg, #ffffff 20%, #34d399 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+.cyber-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+.cyber-list li{position:relative;padding-right:26px;}
+.cyber-list li::before{content:'✦';position:absolute;right:0;top:0px;color:var(--accent-color, var(--cyan));font-size:0.95rem;}
+.cyber-list.warning li::before{content:'⚠️';color:var(--rose);}
+
+.stat-panel{background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:14px;padding:22px;text-align:center;}
+.stat-val{font-size:2.8rem;font-weight:900;color:var(--accent-color, var(--cyan));line-height:1;margin-bottom:6px;display:block;text-shadow:0 0 20px rgba(56,189,248,0.4);}
+
+/* أزرار التحكم بالتنقل السفلية */
+.controls-bar{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:16px;
+  background:rgba(2, 6, 18, 0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  padding:8px 20px;border-radius:40px;border:1px solid rgba(255,255,255,0.12);
+  z-index:100;box-shadow:0 10px 30px rgba(0,0,0,0.8);
+}
+.nav-btn{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);
+  color:var(--text-main);width:42px;height:42px;border-radius:50%;
+  display:flex;justify-content:center;align-items:center;cursor:pointer;
+  font-size:1.1rem;transition:all 0.25s ease;
+}
+.nav-btn:hover{background:var(--cyan);color:#020617;border-color:var(--cyan);box-shadow:0 0 15px var(--cyan);}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed;box-shadow:none;}
+
+.dots-container{display:flex;gap:7px;align-items:center;}
+.dot-item{
+  width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.2);
+  cursor:pointer;transition:all 0.3s ease;
+}
+.dot-item.active{background:var(--cyan);width:24px;border-radius:10px;box-shadow:0 0 10px var(--cyan);}
+
+#progress-bar{position:fixed;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--emerald));z-index:110;width:0%;transition:width 0.3s ease;}
+</style>
+</head>
+<body>
+
+<canvas id="storm-sky-canvas"></canvas>
+<div id="progress-bar"></div>
+
+<header>
+  <div class="brand">إدارة المواد <span class="dot">•</span> المحاضرة السادسة</div>
+  <div class="badge">العرض الأفقي التفاعلي</div>
+  <div class="slide-indicator">الشريحة <span id="currentSlideNum">01</span> / 14</div>
+</header>
+
+<div class="presentation-viewport" id="viewport">
+
+  <!-- 1: الغلاف -->
+  <div class="slide active" data-transition="zoom" style="--accent-color:var(--cyan);">
+    <div class="cyber-card col-12" style="max-width:860px;text-align:center;border-right:none;">
+      <h1 class="title-gradient-cyan" style="margin-bottom:16px;">الأسس العلمية للشراء<br><span style="color:var(--cyan)">الجودة — الكمية</span></h1>
+      <p style="font-size:1.1rem;max-width:680px;margin:0 auto 22px;color:#e2e8f0;">دليل متكامل حول تحديد الجودة المناسبة، معايير الفحص الدقيق، وحساب الكمية الاقتصادية للشراء وتقليل التكاليف.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <span style="background:rgba(56,189,248,0.12);color:var(--cyan);padding:6px 16px;border-radius:8px;border:1px solid rgba(56,189,248,0.3);font-size:0.88rem;font-weight:700;">[01] الجودة المناسبة</span>
+        <span style="background:rgba(168,85,247,0.12);color:var(--purple);padding:6px 16px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);font-size:0.88rem;font-weight:700;">[02] الكمية المناسبة</span>
+        <span style="background:rgba(52,211,153,0.12);color:var(--emerald);padding:6px 16px;border-radius:8px;border:1px solid rgba(52,211,153,0.3);font-size:0.88rem;font-weight:700;">[03] الكمية الاقتصادية</span>
+        <span style="background:rgba(251,191,36,0.12);color:var(--amber);padding:6px 16px;border-radius:8px;border:1px solid rgba(251,191,36,0.3);font-size:0.88rem;font-weight:700;">[04] التكاليف والتخزين</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2: محتويات العرض -->
+  <div class="slide" data-transition="cube" style="--accent-color:var(--purple);">
+    <div style="width:100%;max-width:1150px;">
+      <h2 class="title-gradient-purple">مكونات المحاضرة</h2>
+      <div class="grid-layout">
+        <div class="cyber-card col-6" style="--accent-color:var(--cyan);">
+          <span style="color:var(--cyan);font-weight:900;font-size:0.9rem;display:block;margin-bottom:4px;">PHASE 01</span>
+          <h3 style="color:var(--cyan);">أهمية تحديد الجودة والكمية</h3>
+          <p>لماذا تُعد عملية تحديد الجودة والكمية من أصعب مهام إدارة المواد؟</p>
+        </div>
+        <div class="cyber-card col-6" style="--accent-color:var(--emerald);">
+          <span style="color:var(--emerald);font-weight:900;font-size:0.9rem;display:block;margin-bottom:4px;">PHASE 02</span>
+          <h3 style="color:var(--emerald);">الشراء بالجودة المناسبة</h3>
+          <p>مفهوم الجودة، معايير تحديد الجودة المناسبة (الملاءمة – الوفرة – التكلفة).</p>
+        </div>
+        <div class="cyber-card col-6" style="--accent-color:var(--amber);">
+          <span style="color:var(--amber);font-weight:900;font-size:0.9rem;display:block;margin-bottom:4px;">PHASE 03</span>
+          <h3 style="color:var(--amber);">الفحص وخطواته</h3>
+          <p>الفحص وظيفة ضرورية، خطوات عملية الفحص وعوامل درجة دقته.</p>
+        </div>
+        <div class="cyber-card col-6" style="--accent-color:var(--rose);">
+          <span style="color:var(--rose);font-weight:900;font-size:0.9rem;display:block;margin-bottom:4px;">PHASE 04</span>
+          <h3 style="color:var(--rose);">الشراء بالكمية المناسبة</h3>
+          <p>مفهوم الكمية المناسبة، الكمية الاقتصادية للشراء، وتكاليف التوريد والتخزين.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3: لماذا تحديد الجودة والكمية صعب؟ -->
+  <div class="slide" data-transition="slide-right" style="--accent-color:var(--amber);">
+    <div style="width:100%;max-width:1150px;">
+      <div class="cyber-tag">مقدمة المحاضرة</div>
+      <h2 class="title-gradient-amber">لماذا تحديد الجودة والكمية صعب؟</h2>
+      <p style="margin-bottom:12px;">يُعدّ تحديد الجودة والكمية عملاً في غاية الصعوبة بالنسبة لإدارة المواد في أي منظمة:</p>
+      <div class="grid-layout">
+        <div class="cyber-card col-6" style="--accent-color:var(--rose);">
+          <h3 style="color:var(--rose);margin-bottom:8px;">⚠️ ثلاثة أخطاء مكلفة يجب تجنبها</h3>
+          <ul class="cyber-list warning">
+            <li>توفير مواد ذات <b>جودة عالية جداً</b> يترتب عليه <b>زيادة هائلة في التكاليف</b>.</li>
+            <li>توفير مواد ذات <b>جودة منخفضة</b> لا تتفق نهائياً مع مواصفات الإنتاج.</li>
+            <li>توفير <b>كميات تفوق الحاجة الفعلية</b> مما يؤدي لتجميد الأموال.</li>
+          </ul>
+        </div>
+        <div class="cyber-card col-6" style="--accent-color:var(--amber);">
+          <h3 style="color:var(--amber);margin-bottom:8px;">💡 أهمية المقاييس والمواصفات</h3>
+          <p>تظهر أهمية التعبير عن الجودة بعدد من <b>المقاييس الدقيقة</b> حسب:</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+            <span style="background:rgba(251,191,36,0.12);color:var(--amber);padding:6px 14px;border-radius:8px;font-size:0.88rem;border:1px solid rgba(251,191,36,0.3);font-weight:700;">نوع الصنف</span>
+            <span style="background:rgba(251,191,36,0.12);color:var(--amber);padding:6px 14px;border-radius:8px;font-size:0.88rem;border:1px solid rgba(251,191,36,0.3);font-weight:700;">أسعار البيع كمنتج نهائي</span>
+            <span style="background:rgba(251,191,36,0.12);color:var(--amber);padding:6px 14px;border-radius:8px;font-size:0.88rem;border:1px solid rgba(251,191,36,0.3);font-weight:700;">توقيت الشراء والمادة الخام</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4: القسم الأول: الشراء بالجودة المناسبة -->
+  <div class="slide" data-transition="flip-x" style="--accent-color:var(--purple);">
+    <div style="width:100%;max-width:1150px;">
+      <div class="cyber-tag">القسم الأول</div>
+      <h2 class="title-gradient-purple">الشراء بالجودة المناسبة</h2>
+      <div class="cyber-card col-12" style="background:rgba(168,85,247,0.08);margin-bottom:14px;--accent-color:var(--purple);">
+        <h3 style="color:var(--purple);margin-bottom:6px;">ما الجودة؟</h3>
+        <p><b>المفهوم المطلق:</b> كل شيء نفيس أو ثمين ذو قيمة ضمنية، أو رتبة معينة تُحدد بواسطة المجتمع أو الأجهزة.</p>
+        <p style="margin-top:6px"><b>في المجال الصناعي:</b> لا يعنينا المفهوم المطلق، بل <b style="color:var(--purple)">ملاءمة الصنف في إشباع حاجة معينة</b> داخل المنظمة.</p>
+      </div>
+      <div class="grid-layout" style="margin-top:0;">
+        <div class="cyber-card col-6" style="--accent-color:var(--cyan);">
+          <h3 style="color:var(--cyan);">🎯 الجودة المناسبة</h3>
+          <p>مجمل <b>خصائص السلعة أو الخدمة المشتراة</b> التي تحدد مدى صلاحيتها للاستخدام في غرض معين بالمنشأة.</p>
+        </div>
+        <div class="cyber-card col-6" style="--accent-color:var(--emerald);">
+          <h3 style="color:var(--emerald);">⚖️ الاعتبار العملي</h3>
+          <p>ليست بالضرورة "أفضل جودة" في السوق، بل تتواءم تماماً مع ظروف التشغيل ولا تنفصل عن الكمية والسعر والزمن.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5: ثلاثة معايير أساسية لتحديد الجودة المناسبة -->
+  <div class="slide" data-transition="glitch" style="--accent-color:var(--emerald);">
+    <div style="width:100%;max-width:1150px;">
+      <div class="cyber-tag">معايير الجودة</div>
+      <h2 class="title-gradient-emerald">ثلاثة معايير أساسية لتحديد الجودة المناسبة</h2>
+      <div class="grid-layout">
+        <div class="cyber-card col-4" style="--accent-color:var(--emerald);">
+          <span style="color:var(--emerald);font-weight:900;font-size:1rem;display:block;margin-bottom:4px;">01 / الملاءمة</span>
+          <h3 style="color:var(--emerald);">الملاءمة للغرض من الاستخدام</h3>
+          <p style="font-size:0.92rem;">تحديد الحد الأدنى للجودة المطلوبة. دفع مبالغ زائدة لشراء جودة أعلى دون عائد يُعد هدراً للموارد.</p>
+        </div>
+        <div class="cyber-card col-4" style="--accent-color:var(--cyan);">
+          <span style="color:var(--cyan);font-weight:900;font-size:1rem;display:block;margin-bottom:4px;">02 / الوفرة</span>
+          <h3 style="color:var(--cyan);">وفرة المواد في السوق</h3>
+          <p style="font-size:0.92rem;">أن تكون المواد متوافرة بسرعة واقتصادية ومن مصادر متعددة — تعذر الحصول قد يفرض تعديل القرار.</p>
+        </div>
+        <div class="cyber-card col-4" style="--accent-color:var(--amber);">
+          <span style="color:var(--amber);font-weight:900;font-size:1rem;display:block;margin-bottom:4px;">03 / التكلفة</span>
+          <h3 style="color:var(--amber);">التكلفة الاقتصادية الشاملة</h3>
+          <p style="font-size:0.92rem;">المحافظة على التكلفة في حدها الأدنى (شراء، نقل، تخزين، وفحص) دون إهمال المسؤولية.</p>
+        </div>
+        <div class="cyber-card col-12" style="text-align:center;padding:14px;--accent-color:var(--purple);">
+          <p style="font-size:0.95rem;color:#ffffff;">📌 شراء مواد جودتها أقل أو أعلى من المستوى المطلوب يمثل إسرافاً مباشراً أو غير مباشر.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6: الفحص: خطوات عملية الفحص -->
+  <div class="slide" data-transition="drop" style="--accent-color:var(--cyan);">
+    <div style="width:100%;max-width:1150px;">
+      <div class="cyber-tag">رقابة الجودة</div>
+      <h2 class="title-gradient-cyan">خطوات عملية الفحص</h2>
+      <p style="margin-bottom:12px;">الفحص وظيفة ضرورية لضمان حصول المؤسسة على المستوى المناسب من الجودة لمشترياتها:</p>
+      <div class="grid-layout">
+        <div class="cyber-card col-3" style="--accent-color:var(--cyan);">
+          <span class="stat-val" style="font-size:1.8rem;">01</span>
+          <h3 style="color:var(--cyan);">تحديد المعايير</h3>
+          <p style="font-size:0.88rem;">تحديد شروط جودة البضاعة والخامات المشتراة بدقة.</p>
+        </div>
+        <div class="cyber-card col-3" style="--accent-color:var(--purple);">
+          <span class="stat-val" style="font-size:1.8rem;color:var(--purple);">02</span>
+          <h3 style="color:var(--purple);">نقاط الفحص</h3>
+          <p style="font-size:0.88rem;">تحديد الأماكن والمراحل التي يُجرى عندها الفحص بدقة.</p>
+        </div>
+        <div class="cyber-card col-3" style="--accent-color:var(--emerald);">
+          <span class="stat-val" style="font-size:1.8rem;color:var(--emerald);">03</span>
+          <h3 style="color:var(--emerald);">نطاق العينة</h3>
+          <p style="font-size:0.88rem;">حجم العينة المفحوصة وحدود الانحراف المسموح به.</p>
+        </div>
+        <div class="cyber-card col-3" style="--accent-color:var(--amber);">
+          <span class="stat-val" style="font-size:1.8rem;color:var(--amber);">04</span>
+          <h3 style="color:var(--amber);">التصحيح</h3>
+          <p style="font-size:0.88rem;">التصرف المناسب عند ورود شحنات مخالفة للمواصفات.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7: درجة دقة الفحص -->
+  <div class="slide" data-transition="spin" style="--accent-color:var(--rose);">
+    <div style="width:100%;max-width:1150px;">
+      <div class="cyber-tag">رقابة الجودة</div>
+      <h2>العوامل المؤثرة في درجة دقة الفحص</h2>
+      <p style="margin-bottom:12px;color:var(--rose);font-weight:700;">⚠️ المبالغة في الفحص إسراف تماماً كالقصور فيه!</p>
+      <div class="grid-layout">
+        <div class="cyber-card col-4" style="--accent-color:var(--rose);">
+          <h3 style="color:var(--rose);">1️⃣ كمية وقيمة المواد</h3>
+          <p style="font-size:0.92rem;">كلما زادت القيمة والكمية، تطلبت فحصاً بدرجة دقة أعلى.</p>
+        </div>
+        <div class="cyber-card col-4" style="--accent-color:var(--amber);">
+          <h3 style="color:var(--amber);">2️⃣ أهمية المواد</h3>
+          <p style="font-size:0.92rem;">الخامات الحرجة في خط الإنتاج تستوجب فحصاً أشمل وأدق.</p>
+        </div>
+        <div class="cyber-card col-4" style="--accent-color:var(--cyan);">
+          <h3 style="color:var(--cyan);">3️⃣ الخبرة مع المورد</h3>
+          <p style="font-size:0.92rem;">سجل المورد الجيد يخفض حدة الفحص دون المساس بالجودة.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8: القسم الثاني: الشراء بالكمية المناسبة -->
+  <div class="slide" data-transition="slide-left" style="--accent-color:var(--emerald);">
+    <div style="width:100%;max-width:1150px;">
+      <div class="cyber-tag">القسم الثاني</div>
+      <h2 class="title-gradient-emerald">الشراء بالكمية المناسبة</h2>
+      <div class="cyber-card col-12" style="background:rgba(52,211,153,0.08);margin-bottom:14px;--accent-color:var(--emerald);">
+        <h3 style="color:var(--emerald);margin-bottom:6px;">أهمية الخامات والمخزون</h3>
+        <p>تمثل الخامات النسبة الكبرى من التكاليف، وتحتل الاستثمارات المخزنية حجماً هائلاً من أموال المنشأة — لذا فالكمية قرار استراتيجي.</p>
+      </div>
+      <div class="grid-layout" style="margin-top:0;">
+        <div class="cyber-card col-4 stat-panel" style="--accent-color:var(--emerald);">
+          <span class="stat-val" style="color:var(--emerald);">+50%</span>
+          <p style="font-size:0.88rem;">نسبة الخامات من تكاليف الإنتاج الإجمالية بالمشروعات الصناعية.</p>
+        </div>
+        <div class="cyber-card col-4 stat-panel" style="--accent-color:var(--cyan);">
+          <span class="stat-val" style="color:var(--cyan);">⅓</span>
+          <p style="font-size:0.88rem;">ما تحتله الأجزاء تحت التشغيل ومخزون الخامات من الاستثمارات الكلية.</p>
+        </div>
+        <div class="cyber-card col-4 stat-panel" style="--accent-color:var(--purple);">
+          <span class="stat-val" style="font-size:1.8rem;margin-top:10px;color:var(--purple);">الغلَبَة</span>
+          <p style="font-size:0.88rem;">تمثلها البضاعة المخزونة في ميزانية المنشآت التجارية.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9: الحد المناسب للمخزون -->
+  <div class="slide" data-transition="tunnel" style="--accent-color:var(--amber);">
+    <div style="width:100%;max-width:1150px;">
+      <div class="cyber-tag">إدارة المخزون</div>
+      <h2 class="title-gradient-amber">الحد المناسب للمخزون والعلاقة بمراقبة المخزون</h2>
+      <div class="grid-layout">
+        <div class="cyber-card col-6" style="--accent-color:var(--rose);">
+          <h3 style="color:var(--rose);margin-bottom:6px;">📈 إذا زاد المخزون عن حده</h3>
+          <p style="font-size:0.95rem;">زيادة هائلة في تكاليف التخزين، تجميد للأموال، ومخاطر التقادم والتلف.</p>
+        </div>
+        <div class="cyber-card col-6" style="--accent-color:var(--rose);">
+          <h3 style="color:var(--rose);margin-bottom:6px;">📉 إذا قل المخزون عن حده</h3>
+          <p style="font-size:0.95rem;">خسائر فادحة، توقف في خطوط الإنتاج، وفقدان فرص البيع واضطراب الخدمة.</p>
+        </div>
+        <div class="cyber-card col-12" style="--accent-color:var(--emerald);">
+          <h3 style="color:var(--emerald);">✅ النتيجة</h3>
+          <p>هذا يبرز الأهمية البالغة لربط <b>نشاط الشراء بنظام مراقبة المخزون</b> بدقة تامة.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10: مفهوم الكمية الاقتصادية للشراء -->
+  <div class="slide" data-transition="ripple" style="--accent-color:var(--purple);">
+    <div style="width:100%;max-width:1150px;">
+      <div class="cyber-tag">التحليل الاقتصادي</div>
+      <h2 class="title-gradient-purple">مفهوم الكمية الاقتصادية للشراء (EOQ)</h2>
+      <div class="cyber-card col-12" style="background:rgba(168,85,247,0.1);margin-bottom:14px;--accent-color:var(--purple);">
+        <h3 style="color:var(--purple);margin-bottom:6px;">التعريف العلمي الدقيق</h3>
+        <p style="font-size:0.98rem;color:#ffffff;">«هي الكمية التي يتساوى أو يتعادل في ضوئها تكلفة التخزين وتكلفة التوريد (الشراء)، وتكون عندها التكلفة الكلية أقل ما يمكن»</p>
+      </div>
+      <div class="grid-layout" style="margin-top:0;">
+        <div class="cyber-card col-6" style="--accent-color:var(--cyan);">
+          <h3 style="color:var(--cyan);">عنصران للتكلفة</h3>
+          <ul class="cyber-list">
+            <li>أ — تكاليف التوريد (الشراء)</li>
+            <li>ب — تكاليف التخزين (الاحتفاظ بالمخزون)</li>
+          </ul>
+        </div>
+        <div class="cyber-card col-6" style="--accent-color:var(--emerald);">
+          <h3 style="color:var(--emerald);">🎯 هدف مدير المشتريات</h3>
+          <p style="font-size:0.95rem;">تحديد حجم أمر الشراء الذي يصل عنده مجموع التكلفتين إلى أدنى مستوى ممكن.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11: أولاً: تكاليف التوريد والشراء -->
+  <div class="slide" data-transition="matrix" style="--accent-color:var(--cyan);">
+    <div style="width:100%;max-width:1150px;">
+      <div class="cyber-tag">تحليل التكاليف</div>
+      <h2 class="title-gradient-cyan">أولاً: تكاليف التوريد (الشراء)</h2>
+      <div class="grid-layout">
+        <div class="cyber-card col-4" style="--accent-color:var(--cyan);">
+          <span style="color:var(--cyan);font-weight:900;font-size:1rem;display:block;margin-bottom:4px;">01</span>
+          <h3 style="color:var(--cyan);">الأجور والمرتبات</h3>
+          <p style="font-size:0.9rem;">جزء منها والمصروفات المتعلقة بأنشطة الشراء ومراقبة المخزون والفحص.</p>
+        </div>
+        <div class="cyber-card col-4" style="--accent-color:var(--cyan);">
+          <span style="color:var(--cyan);font-weight:900;font-size:1rem;display:block;margin-bottom:4px;">02</span>
+          <h3 style="color:var(--cyan);">المهمات المكتبية</h3>
+          <p style="font-size:0.9rem;">المصروفات المتعلقة بالأوراق والمهمات المستخدمة لتلك الأنشطة.</p>
+        </div>
+        <div class="cyber-card col-4" style="--accent-color:var(--cyan);">
+          <span style="color:var(--cyan);font-weight:900;font-size:1rem;display:block;margin-bottom:4px;">03</span>
+          <h3 style="color:var(--cyan);">الاتصالات والمراسلات</h3>
+          <p style="font-size:0.9rem;">المكالمات، البريد، والبرقيات الخاصة بتوفير الاحتياجات.</p>
+        </div>
+        <div class="cyber-card col-12" style="--accent-color:var(--amber);">
+          <h3 style="color:var(--amber);">🔁 القاعدة العكسية</h3>
+          <p style="font-size:0.95rem;">زيادة حجم أمر الشراء تؤدي لزيادة تكلفة الاحتفاظ وانخفاض تكلفة الحصول على المخزون.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12: ثانياً: تكاليف التخزين -->
+  <div class="slide" data-transition="fold" style="--accent-color:var(--rose);">
+    <div style="width:100%;max-width:1150px;">
+      <div class="cyber-tag">تحليل التكاليف</div>
+      <h2 style="color:var(--rose);">ثانياً: تكاليف التخزين</h2>
+      <div class="grid-layout">
+        <div class="cyber-card col-3" style="--accent-color:var(--rose);padding:18px;">
+          <span style="color:var(--rose);font-weight:900;font-size:0.95rem;display:block;margin-bottom:2px;">01</span>
+          <h3 style="font-size:0.95rem;color:var(--rose);">العائد الفائت</h3>
+          <p style="font-size:0.82rem;">الفائدة على رأس المال المستثمر بالمخزون.</p>
+        </div>
+        <div class="cyber-card col-3" style="--accent-color:var(--rose);padding:18px;">
+          <span style="color:var(--rose);font-weight:900;font-size:0.95rem;display:block;margin-bottom:2px;">02</span>
+          <h3 style="font-size:0.95rem;color:var(--rose);">التأمين والحماية</h3>
+          <p style="font-size:0.82rem;">تكاليف التأمين ضد السرقة والحريق.</p>
+        </div>
+        <div class="cyber-card col-3" style="--accent-color:var(--rose);padding:18px;">
+          <span style="color:var(--rose);font-weight:900;font-size:0.95rem;display:block;margin-bottom:2px;">03</span>
+          <h3 style="font-size:0.95rem;color:var(--rose);">مصاريف المخازن</h3>
+          <p style="font-size:0.82rem;">المصاريف المباشرة لتشغيل المساحات.</p>
+        </div>
+        <div class="cyber-card col-3" style="--accent-color:var(--rose);padding:18px;">
+          <span style="color:var(--rose);font-weight:900;font-size:0.95rem;display:block;margin-bottom:2px;">04</span>
+          <h3 style="font-size:0.95rem;color:var(--rose);">التقادم والتلف</h3>
+          <p style="font-size:0.82rem;">خسائر التقادم والتلف خلال فترة التخزين.</p>
+        </div>
+        <div class="cyber-card col-12" style="--accent-color:var(--amber);">
+          <h3 style="color:var(--amber);">🔗 الارتباط المباشر</h3>
+          <p style="font-size:0.95rem;">حجم المخزون يرتبط مباشرة بالكمية المشتراة؛ وكلما زادت الكمية ارتفع متوسط المخزون وزادت تكاليف الاحتفاظ.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13: ملخص المنظومة -->
+  <div class="slide" data-transition="fade-zoom" style="--accent-color:var(--purple);">
+    <div style="width:100%;max-width:1150px;">
+      <div class="cyber-tag">خلاصة المحاضرة</div>
+      <h2 class="title-gradient-purple">ملخص المنظومة العلمية للشراء</h2>
+      <div class="grid-layout">
+        <div class="cyber-card col-6" style="--accent-color:var(--cyan);">
+          <h3 style="color:var(--cyan);margin-bottom:10px;">✅ قطاع الجودة</h3>
+          <ul class="cyber-list" style="font-size:0.92rem;">
+            <li>الملاءمة للحاجة وليست الجودة المطلقة.</li>
+            <li>المعايير: ملائمة، وفرة، وتكلفة شاملة.</li>
+            <li>الفحص ضروري بلا مبالغة أو قصور.</li>
+          </ul>
+        </div>
+        <div class="cyber-card col-6" style="--accent-color:var(--emerald);">
+          <h3 style="color:var(--emerald);margin-bottom:10px;">✅ قطاع الكمية والمخزون</h3>
+          <ul class="cyber-list" style="font-size:0.92rem;">
+            <li>الكمية الاقتصادية (EOQ) عند تعادل التكلفة.</li>
+            <li>إدارة المخزون تمنع تجميد الأموال وتوقف الإنتاج.</li>
+            <li>الموازنة بين تكاليف التوريد وتكاليف التخزين.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14: التقرير الختامي -->
+  <div class="slide" data-transition="expand" style="--accent-color:var(--emerald);">
+    <div class="cyber-card col-12" style="max-width:820px;text-align:center;border-right:none;">
+      <h1 class="title-gradient-emerald" style="margin-bottom:14px;">تمت المحاضرة بنجاح ⚡</h1>
+      <p style="margin-bottom:24px;font-size:1.1rem;color:#e2e8f0;">
+        الأسس العلمية للشراء: الجودة الكافية + الكمية الاقتصادية = إدارة مواد ناجحة ومستدامة.
+      </p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <span style="background:rgba(52,211,153,0.15);color:var(--emerald);padding:6px 16px;border-radius:8px;font-size:0.9rem;border:1px solid rgba(52,211,153,0.3);font-weight:700;">✓ جودة ملائمة</span>
+        <span style="background:rgba(52,211,153,0.15);color:var(--emerald);padding:6px 16px;border-radius:8px;font-size:0.9rem;border:1px solid rgba(52,211,153,0.3);font-weight:700;">✓ كمية اقتصادية</span>
+        <span style="background:rgba(52,211,153,0.15);color:var(--emerald);padding:6px 16px;border-radius:8px;font-size:0.9rem;border:1px solid rgba(52,211,153,0.3);font-weight:700;">✓ تكلفة مثلى</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- شريط أزرار التحكم السفلي -->
+<div class="controls-bar">
+  <button class="nav-btn" id="prevBtn" title="الشريحة السابقة (السهم الأيمن/الأعلى)">→</button>
+  <div class="dots-container" id="dotsContainer"></div>
+  <button class="nav-btn" id="nextBtn" title="الشريحة التالية (السهم الأيسر/الأسفل أو المسافة)">←</button>
+</div>
+
+<script>
+/* -------------------------------------------------------------
+   محرك سماء الغيوم الواقعية الواضحة والبرق الخفيف الهادئ
+------------------------------------------------------------- */
+const canvas = document.getElementById('storm-sky-canvas');
+const ctx = canvas.getContext('2d');
+
+let width, height;
+let cloudParticles = [];
+let lightningFlashAlpha = 0;
+let lightningTimer = 0;
+let lightningPath = [];
+
+function resizeCanvas() {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// بناء غيوم متراكمة أوضح وانسيابية
+class StormCloud {
+  constructor() {
+    this.reset();
+  }
+  reset() {
+    this.x = Math.random() * (width + 600) - 300;
+    this.y = Math.random() * (height * 0.85);
+    this.radiusX = Math.random() * 280 + 200;
+    this.radiusY = Math.random() * 160 + 100;
+    this.speedX = (Math.random() - 0.5) * 0.15;
+    this.opacity = Math.random() * 0.32 + 0.18; // غيوم أكثر وضوحاً
+    this.colorShade = Math.floor(Math.random() * 20 + 20);
+  }
+  update() {
+    this.x += this.speedX;
+    if(this.x < -400) this.x = width + 400;
+    if(this.x > width + 400) this.x = -400;
+  }
+  draw() {
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(this.x, this.y, this.radiusX, this.radiusY, 0, 0, Math.PI * 2);
+    let grad = ctx.createRadialGradient(this.x, this.y, 10, this.x, this.y, this.radiusX);
+    grad.addColorStop(0, `rgba(${this.colorShade + 20}, ${this.colorShade + 35}, ${this.colorShade + 60}, ${this.opacity})`);
+    grad.addColorStop(0.7, `rgba(${this.colorShade}, ${this.colorShade + 10}, ${this.colorShade + 25}, ${this.opacity * 0.7})`);
+    grad.addColorStop(1, 'rgba(2, 6, 18, 0)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function initClouds() {
+  cloudParticles = [];
+  for(let i = 0; i < 40; i++) {
+    cloudParticles.push(new StormCloud());
+  }
+}
+initClouds();
+
+// توليد برق خفيف وهادئ جداً
+function generateLightStrike() {
+  lightningPath = [];
+  let startX = Math.random() * (width * 0.8) + (width * 0.1);
+  let startY = 0;
+  lightningPath.push({x: startX, y: startY});
+
+  let curX = startX;
+  let curY = startY;
+  while(curY < height * 0.65) {
+    curX += (Math.random() - 0.5) * 90;
+    curY += Math.random() * 50 + 30;
+    lightningPath.push({x: curX, y: curY});
+  }
+  lightningFlashAlpha = 0.45; // تقليل شدة الفلاش
+}
+
+function renderSkyFrame() {
+  // خلفية سماء ليلية بعمق
+  let bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+  bgGradient.addColorStop(0, '#020612');
+  bgGradient.addColorStop(0.5, '#0b1329');
+  bgGradient.addColorStop(1, '#020612');
+  ctx.fillStyle = bgGradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // رسم وتحديث الغيوم
+  cloudParticles.forEach(cloud => {
+    cloud.update();
+    cloud.draw();
+  });
+
+  // البرق نادر ومتباعد (كل فترة أطول)
+  lightningTimer++;
+  if (lightningTimer > 160 + Math.random() * 120) {
+    generateLightStrike();
+    lightningTimer = 0;
+  }
+
+  // رسم وضاءة البرق الهادئة
+  if(lightningFlashAlpha > 0) {
+    ctx.fillStyle = `rgba(56, 189, 248, ${lightningFlashAlpha * 0.06})`;
+    ctx.fillRect(0, 0, width, height);
+
+    if(lightningPath.length > 0) {
+      ctx.beginPath();
+      ctx.moveTo(lightningPath[0].x, lightningPath[0].y);
+      for(let i = 1; i < lightningPath.length; i++) {
+        ctx.lineTo(lightningPath[i].x, lightningPath[i].y);
+      }
+      ctx.strokeStyle = `rgba(255, 255, 255, ${lightningFlashAlpha * 0.85})`;
+      ctx.lineWidth = 2.2;
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#38bdf8';
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    lightningFlashAlpha -= 0.025;
+  }
+
+  requestAnimationFrame(renderSkyFrame);
+}
+renderSkyFrame();
+
+
+/* -------------------------------------------------------------
+   إدارة شلايدر التقديم والتنقل بين الشرائح
+------------------------------------------------------------- */
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+let currentIndex = 0;
+
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const currentNumEl = document.getElementById('currentSlideNum');
+const progressBar = document.getElementById('progress-bar');
+const dotsContainer = document.getElementById('dotsContainer');
+
+// إنشاء نقاط التنقل السريع
+slides.forEach((_, idx) => {
+  const dot = document.createElement('div');
+  dot.classList.add('dot-item');
+  if(idx === 0) dot.classList.add('active');
+  dot.addEventListener('click', () => goToSlide(idx));
+  dotsContainer.appendChild(dot);
+});
+
+const dots = document.querySelectorAll('.dot-item');
+
+function updatePresentationUI() {
+  slides.forEach((slide, idx) => {
+    slide.classList.remove('active', 'exit-prev');
+    if(idx === currentIndex) {
+      slide.classList.add('active');
+    } else if(idx < currentIndex) {
+      slide.classList.add('exit-prev');
+    }
+  });
+
+  dots.forEach((dot, idx) => {
+    dot.classList.toggle('active', idx === currentIndex);
+  });
+
+  currentNumEl.textContent = String(currentIndex + 1).padStart(2, '0');
+  let progress = ((currentIndex + 1) / totalSlides) * 100;
+  progressBar.style.width = progress + '%';
+
+  prevBtn.disabled = (currentIndex === 0);
+  nextBtn.disabled = (currentIndex === totalSlides - 1);
+}
+
+function goToSlide(index) {
+  if(index >= 0 && index < totalSlides) {
+    currentIndex = index;
+    updatePresentationUI();
+  }
+}
+
+function nextSlide() {
+  if(currentIndex < totalSlides - 1) {
+    currentIndex++;
+    updatePresentationUI();
+  }
+}
+
+function prevSlide() {
+  if(currentIndex > 0) {
+    currentIndex--;
+    updatePresentationUI();
+  }
+}
+
+prevBtn.addEventListener('click', prevSlide);
+nextBtn.addEventListener('click', nextSlide);
+
+// التنقل بواسطة أسهم لوحة المفاتيح والمسافة
+window.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowLeft' || e.key === 'Space' || e.key === 'PageDown') {
+    nextSlide();
+  } else if(e.key === 'ArrowRight' || e.key === 'PageUp') {
+    prevSlide();
+  } else if(e.key === 'Home') {
+    goToSlide(0);
+  } else if(e.key === 'End') {
+    goToSlide(totalSlides - 1);
+  }
+});
+
+// التنقل عبر السحب باللمس (Touch Swiping)
+let touchStartX = 0;
+window.addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].clientX;
+});
+
+window.addEventListener('touchend', (e) => {
+  let touchEndX = e.changedTouches[0].clientX;
+  let diff = touchStartX - touchEndX;
+  if(Math.abs(diff) > 50) {
+    if(diff > 0) {
+      nextSlide();
+    } else {
+      prevSlide();
+    }
+  }
+});
+
+updatePresentationUI();
+</script>
+
+</body>
+</html>
